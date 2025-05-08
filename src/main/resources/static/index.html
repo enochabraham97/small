@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FLAMES Game</title>
     <style>
         body {
@@ -10,32 +8,17 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
         }
         .container {
-            background-color: white;
+            background-color: #f5f5f5;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
-        }
-        input[type="text"] {
-            width: 100%;
+        input {
             padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            margin: 5px 0;
+            width: 200px;
         }
         button {
             background-color: #4CAF50;
@@ -44,108 +27,105 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
         }
         button:hover {
             background-color: #45a049;
         }
         #result {
             margin-top: 20px;
-            padding: 15px;
+            padding: 10px;
             border-radius: 4px;
-            display: none;
         }
         .success {
             background-color: #dff0d8;
-            border: 1px solid #d6e9c6;
             color: #3c763d;
         }
-        #history {
-            margin-top: 30px;
-        }
-        .history-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>FLAMES Game</h1>
-        <div class="form-group">
-            <label for="name1">First Name:</label>
-            <input type="text" id="name1" required>
+        <div>
+            <input type="text" id="name1" placeholder="Enter first name">
+            <input type="text" id="name2" placeholder="Enter second name">
+            <button onclick="calculateFlames()">Calculate</button>
         </div>
-        <div class="form-group">
-            <label for="name2">Second Name:</label>
-            <input type="text" id="name2" required>
-        </div>
-        <button onclick="calculateFlames()">Calculate FLAMES</button>
-        
         <div id="result"></div>
-        
-        <div id="history">
-            <h2>Previous Results</h2>
-            <div id="historyList"></div>
-        </div>
+        <div id="history"></div>
     </div>
 
     <script>
-        function calculateFlames() {
+        async function calculateFlames() {
             const name1 = document.getElementById('name1').value;
             const name2 = document.getElementById('name2').value;
+            const resultDiv = document.getElementById('result');
             
             if (!name1 || !name2) {
-                alert('Please enter both names');
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'Please enter both names';
                 return;
             }
 
-            fetch('/api/flames/calculate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name1, name2 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const resultDiv = document.getElementById('result');
-                resultDiv.style.display = 'block';
+            try {
+                const response = await fetch('/api/flames/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name1, name2 })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to calculate FLAMES');
+                }
+
+                const data = await response.json();
                 resultDiv.className = 'success';
                 resultDiv.innerHTML = `
-                    <h3>Result:</h3>
-                    <p>${name1} and ${name2} are ${data.finalResult}!</p>
+                    <h3>Result: ${data.finalResult}</h3>
                     <p>Letter Count: ${data.letterCount}</p>
-                    <p>Eliminated Options: ${data.eliminatedOptions.join(', ')}</p>
+                    <p>Names: ${data.name1} and ${data.name2}</p>
                 `;
+
+                // Refresh history
                 loadHistory();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while calculating FLAMES');
-            });
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = error.message;
+            }
         }
 
-        function loadHistory() {
-            fetch('/api/flames/results')
-            .then(response => response.json())
-            .then(data => {
-                const historyList = document.getElementById('historyList');
-                historyList.innerHTML = data.map(item => `
-                    <div class="history-item">
-                        <strong>${item.name1}</strong> and <strong>${item.name2}</strong> are <strong>${item.finalResult}</strong>
-                        <br>
-                        <small>Calculated on: ${new Date(item.createdAt).toLocaleString()}</small>
-                    </div>
-                `).join('');
-            })
-            .catch(error => {
-                console.error('Error loading history:', error);
-            });
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/flames/results');
+                const data = await response.json();
+                const historyDiv = document.getElementById('history');
+                
+                if (data.length === 0) {
+                    historyDiv.innerHTML = '<h3>No previous calculations</h3>';
+                    return;
+                }
+
+                historyDiv.innerHTML = '<h3>Previous Calculations:</h3>';
+                data.forEach(result => {
+                    historyDiv.innerHTML += `
+                        <div class="success" style="margin-bottom: 10px;">
+                            <p>${result.name1} and ${result.name2}: ${result.finalResult}</p>
+                            <small>Calculated on: ${new Date(result.createdAt).toLocaleString()}</small>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error('Failed to load history:', error);
+            }
         }
 
         // Load history when page loads
-        document.addEventListener('DOMContentLoaded', loadHistory);
+        loadHistory();
     </script>
 </body>
 </html> 
