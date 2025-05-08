@@ -1,9 +1,9 @@
 services:
   - type: web
     name: flames-game
-    env: docker
-    dockerfilePath: ./Dockerfile
-    plan: free
+    env: java
+    buildCommand: ./mvnw clean package
+    startCommand: java -jar target/flames-game-1.0-SNAPSHOT.jar
     envVars:
       - key: DB_URL
         fromDatabase:
@@ -17,6 +17,14 @@ services:
         fromDatabase:
           name: flames-db
           property: password
+      - key: JAVA_VERSION
+        value: 11
+
+databases:
+  - name: flames-db
+    databaseName: flames
+    user: flames_user
+    plan: free
 
   - type: postgres
     name: flames-db
