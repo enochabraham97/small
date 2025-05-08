@@ -24,7 +24,7 @@ services:
 
 databases:
   - name: flames-db
-    databaseName: flames
+    databaseName: coolflames
     user: flames_user
     plan: free
     ipAllowList: []
