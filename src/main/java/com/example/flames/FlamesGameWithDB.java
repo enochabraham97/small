@@ -1,3 +1,5 @@
+package com.example.flames;
+
 import java.util.*;
 import java.sql.*;
 

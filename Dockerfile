@@ -9,4 +9,4 @@ WORKDIR /app
 COPY --from=build /app/target/flames-game-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
 EXPOSE 8080
 ENV PORT=8080
-ENTRYPOINT ["java", "-jar", "app.jar"] 
+CMD ["java", "-cp", "app.jar", "com.example.flames.FlamesGameWithDB"] 
