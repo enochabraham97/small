@@ -19,12 +19,15 @@ services:
           property: password
       - key: JAVA_VERSION
         value: 11
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
 
 databases:
   - name: flames-db
     databaseName: flames
     user: flames_user
     plan: free
+    ipAllowList: []
 
   - type: postgres
     name: flames-db
