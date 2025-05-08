@@ -23,6 +23,8 @@ services:
         fromDatabase:
           name: flames-db
           property: password
+      - key: PORT
+        value: 8080
 
 databases:
   - name: flames-db
