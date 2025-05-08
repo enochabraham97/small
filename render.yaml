@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: flames-game
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: DB_URL
+        fromDatabase:
+          name: flames-db
+          property: connectionString
+      - key: DB_USER
+        fromDatabase:
+          name: flames-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: flames-db
+          property: password
+
+  - type: postgres
+    name: flames-db
+    plan: free
+    ipAllowList: []
+    envVars:
+      - key: POSTGRES_DB
+        value: mydatabase
+      - key: POSTGRES_USER
+        value: postgres
+      - key: POSTGRES_PASSWORD
+        generateValue: true 

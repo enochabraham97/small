@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: flames_app
+    depends_on:
+      - postgres
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/mydatabase
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: postgres:latest
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: 
