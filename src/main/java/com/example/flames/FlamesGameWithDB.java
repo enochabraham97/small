@@ -5,20 +5,27 @@ import org.springframework.http.ResponseEntity;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/flames")
 public class FlamesGameWithDB {
+    private static final Logger logger = LoggerFactory.getLogger(FlamesGameWithDB.class);
     private static final String[] FLAMES = {"Friendship", "Love", "Attraction", "Marriage", "Enemy", "Sibling"};
     
     @GetMapping("/results")
     public ResponseEntity<List<FlamesResult>> getAllResults() {
+        logger.debug("Getting all results");
         List<FlamesResult> results = new ArrayList<>();
         String url = System.getenv("SPRING_DATASOURCE_URL");
         String user = System.getenv("SPRING_DATASOURCE_USERNAME");
         String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
         
+        logger.debug("Database URL: {}", url);
+        
         if (url == null || user == null || password == null) {
+            logger.error("Database configuration is missing");
             return ResponseEntity.internalServerError()
                 .body(new ArrayList<>());
         }
@@ -40,7 +47,7 @@ public class FlamesGameWithDB {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Database error: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError()
                 .body(new ArrayList<>());
         }
@@ -49,7 +56,10 @@ public class FlamesGameWithDB {
 
     @PostMapping("/calculate")
     public ResponseEntity<FlamesResult> calculateFlames(@RequestBody FlamesRequest request) {
+        logger.debug("Calculating FLAMES for {} and {}", request.getName1(), request.getName2());
+        
         if (request == null || request.getName1() == null || request.getName2() == null) {
+            logger.error("Invalid request: request or names are null");
             return ResponseEntity.badRequest().build();
         }
 
@@ -96,6 +106,7 @@ public class FlamesGameWithDB {
         String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
         
         if (url == null || user == null || password == null) {
+            logger.error("Database configuration is missing");
             return ResponseEntity.internalServerError().build();
         }
         
@@ -111,7 +122,7 @@ public class FlamesGameWithDB {
                 pstmt.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Database error: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
         
@@ -119,6 +130,7 @@ public class FlamesGameWithDB {
     }
     
     private void createTableIfNotExists(Connection conn) throws SQLException {
+        logger.debug("Creating table if not exists");
         String sql = "CREATE TABLE IF NOT EXISTS flames_results (" +
                     "id SERIAL PRIMARY KEY, " +
                     "name1 VARCHAR(255), " +
