@@ -2,22 +2,11 @@ services:
   - type: web
     name: coolflames-game
     env: java
+    region: oregon
     buildCommand: ./mvnw clean package
     startCommand: java -jar target/flames-game-1.0-SNAPSHOT.jar
     healthCheckPath: /api/flames/results
     envVars:
-      - key: DB_URL
-        fromDatabase:
-          name: flames-db
-          property: connectionString
-      - key: DB_USER
-        fromDatabase:
-          name: flames-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: flames-db
-          property: password
       - key: JAVA_VERSION
         value: 11
       - key: SPRING_PROFILES_ACTIVE
@@ -40,11 +29,5 @@ databases:
     databaseName: coolflames
     user: flames_user
     plan: free
-    ipAllowList: []
-    envVars:
-      - key: POSTGRES_DB
-        value: coolflames
-      - key: POSTGRES_USER
-        value: flames_user
-      - key: POSTGRES_PASSWORD
-        generateValue: true 
+    region: oregon
+    ipAllowList: [] 
