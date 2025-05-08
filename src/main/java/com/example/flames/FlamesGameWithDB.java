@@ -18,6 +18,11 @@ public class FlamesGameWithDB {
         String user = System.getenv("SPRING_DATASOURCE_USERNAME");
         String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
         
+        if (url == null || user == null || password == null) {
+            return ResponseEntity.internalServerError()
+                .body(new ArrayList<>());
+        }
+        
         try (Connection conn = DriverManager.getConnection(url, user, password)) {
             createTableIfNotExists(conn);
             String sql = "SELECT * FROM flames_results ORDER BY created_at DESC";
@@ -36,13 +41,18 @@ public class FlamesGameWithDB {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError()
+                .body(new ArrayList<>());
         }
         return ResponseEntity.ok(results);
     }
 
     @PostMapping("/calculate")
     public ResponseEntity<FlamesResult> calculateFlames(@RequestBody FlamesRequest request) {
+        if (request == null || request.getName1() == null || request.getName2() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
         String name1 = request.getName1().toLowerCase();
         String name2 = request.getName2().toLowerCase();
         
@@ -84,6 +94,10 @@ public class FlamesGameWithDB {
         String url = System.getenv("SPRING_DATASOURCE_URL");
         String user = System.getenv("SPRING_DATASOURCE_USERNAME");
         String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
+        
+        if (url == null || user == null || password == null) {
+            return ResponseEntity.internalServerError().build();
+        }
         
         try (Connection conn = DriverManager.getConnection(url, user, password)) {
             createTableIfNotExists(conn);
