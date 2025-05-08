@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: flames-game
+    name: coolflames-game
     env: java
     buildCommand: ./mvnw clean package
     startCommand: java -jar target/flames-game-1.0-SNAPSHOT.jar
