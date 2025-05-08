@@ -28,15 +28,10 @@ databases:
     user: flames_user
     plan: free
     ipAllowList: []
-
-  - type: postgres
-    name: flames-db
-    plan: free
-    ipAllowList: []
     envVars:
       - key: POSTGRES_DB
-        value: mydatabase
+        value: coolflames
       - key: POSTGRES_USER
-        value: postgres
+        value: flames_user
       - key: POSTGRES_PASSWORD
         generateValue: true 
