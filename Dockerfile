@@ -6,7 +6,7 @@ RUN mvn clean package
 
 FROM openjdk:11-jre-slim
 WORKDIR /app
-COPY --from=build /app/target/flames-game-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
+COPY --from=build /app/target/flames-game-1.0-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENV PORT=8080
-CMD ["java", "-cp", "app.jar", "com.example.flames.FlamesGameWithDB"] 
+CMD ["java", "-jar", "app.jar"] 
