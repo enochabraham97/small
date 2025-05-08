@@ -37,7 +37,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>FlamesGameWithDB</mainClass>
+                            <mainClass>com.example.flames.FlamesGameWithDB</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
